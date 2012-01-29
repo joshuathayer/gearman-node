@@ -7,12 +7,17 @@ require 'gearman'
 w = Gearman::Worker.new(['localhost:4730'])
 
 w.add_ability('test') do |data, job|
-  sleep 0.25
+  puts data
+#  sleep 0.25
   job.send_data 'test'
-  sleep 0.25
+  puts "sent data"
+#  sleep 0.25
   job.report_warning 'test'
-  sleep 0.25
+  puts "sent warning"
+#  sleep 0.25
+  puts "returning reverse now"
   data.reverse
+  
 end
 
 w.add_ability('test_fail') do
