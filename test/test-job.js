@@ -10,7 +10,7 @@ var gearman = require("gearman"),
 // gearman.debug = true;
 
 client = gearman.createClient();
-job = client.submitJob("test", "test", { encoding: "utf8" });
+job = client.createJob("test", "test", { encoding: "utf8" });
 
 module.exports = testCase({
    "Job": function (test) {
@@ -27,82 +27,6 @@ module.exports = testCase({
             test.equal(job.handle, handle,
                        "job handle assigned on create event");
             test.done();
-        });
-    },
-
-    "submit { priority: 'high' }": function (test) {
-        var job = client.submitJob("test", "test", { encoding: "utf8",
-                                                     priority: "high" });
-        job.on("create", function (handle) {
-            test.ok(typeof handle === "string",
-                    "handle returned on create event");
-            test.equal(job.handle, handle,
-                       "job handle assigned on create event");
-            test.done();
-        });
-    },
-
-    "submit { priority: 'low' }": function (test) {
-        var job = client.submitJob("test", "test", { encoding: "utf8",
-                                                     priority: "low" });
-        job.on("create", function (handle) {
-            test.ok(typeof handle === "string",
-                    "handle returned on create event");
-            test.equal(job.handle, handle,
-                       "job handle assigned on create event");
-            test.done();
-        });
-    },
-
-    "submit { priority: 'invalid' }": function (test) {
-        test.throws(function () {
-            var job = client.submitJob("test", "test", { encoding: "utf8",
-                                                         priority: "other" });
-        }, "must have a known priority");
-        test.done();
-    },
-
-    "submit { background: true }": function (test) {
-        var job = client.submitJob("test", "test", { background: true });
-
-        job.on("create", function (handle) {
-            job.getStatus(function (status) {
-                test.deepEqual(status, { handle: handle,
-                                         known: true,
-                                         running: true,
-                                         percentComplete: [ 48, 48 ] });
-                test.done();
-            });
-        });
-    },
-
-    "submit { background: true, priority: 'high' }": function (test) {
-        var job = client.submitJob("test", "test", { background: true,
-                                                     priority: "high" });
-
-        job.on("create", function (handle) {
-            job.getStatus(function (status) {
-                test.deepEqual(status, { handle: handle,
-                                         known: true,
-                                         running: true,
-                                         percentComplete: [ 48, 48 ] });
-                test.done();
-            });
-        });
-    },
-
-    "submit { background: true, priority: 'low' }": function (test) {
-        var job = client.submitJob("test", "test", { background: true,
-                                                     priority: "low" });
-
-        job.on("create", function (handle) {
-            job.getStatus(function (status) {
-                test.deepEqual(status, { handle: handle,
-                                         known: true,
-                                         running: true,
-                                         percentComplete: [ 48, 48 ] });
-                test.done();
-            });
         });
     },
 
@@ -129,10 +53,95 @@ module.exports = testCase({
     },
 
     "event: fail": function (test) {
-        var failJob = client.submitJob("test_fail");
+        var failJob = client.createJob("test_fail");
+        job.submit();
         failJob.on("fail", function () {
             test.ok(true, true, "work fails");
             test.done();
         });
+    },
+
+    "submit { priority: 'high' }": function (test) {
+        var job = client.createJob("test", "test", { encoding: "utf8",
+                                                     priority: "high" });
+        job.on("create", function (handle) {
+            test.ok(typeof handle === "string",
+                    "handle returned on create event");
+            test.equal(job.handle, handle,
+                       "job handle assigned on create event");
+            test.done();
+        });
+        job.submit();
+    },
+
+    "submit { priority: 'low' }": function (test) {
+        var job = client.createJob("test", "test", { encoding: "utf8",
+                                                     priority: "low" });
+        job.on("create", function (handle) {
+            test.ok(typeof handle === "string",
+                    "handle returned on create event");
+            test.equal(job.handle, handle,
+                       "job handle assigned on create event");
+            test.done();
+        });
+        job.submit();
+    },
+
+    "submit { priority: 'invalid' }": function (test) {
+        test.throws(function () {
+            var job = client.createJob("test", "test", { encoding: "utf8",
+                                                         priority: "other" });
+            job.submit();
+        }, "must have a known priority");
+        test.done();
+    },
+
+    "submit { background: true }": function (test) {
+        var job = client.createJob("test", "test", { background: true });
+
+        job.on("create", function (handle) {
+            job.getStatus(function (status) {
+                test.deepEqual(status, { handle: handle,
+                                         known: true,
+                                         running: true,
+                                         percentComplete: [ 48, 48 ] });
+                test.done();
+            });
+        });
+        job.submit();
+    },
+
+    "submit { background: true, priority: 'high' }": function (test) {
+        var job = client.createJob("test", "test", { background: true,
+                                                     priority: "high" });
+
+        job.on("create", function (handle) {
+            job.getStatus(function (status) {
+                test.deepEqual(status, { handle: handle,
+                                         known: true,
+                                         running: true,
+                                         percentComplete: [ 48, 48 ] });
+                test.done();
+            });
+        });
+        job.submit();
+    },
+
+    "submit { background: true, priority: 'low' }": function (test) {
+        var job = client.createJob("test", "test", { background: true,
+                                                     priority: "low" });
+
+        job.on("create", function (handle) {
+            job.getStatus(function (status) {
+                test.deepEqual(status, { handle: handle,
+                                         known: true,
+                                         running: true,
+                                         percentComplete: [ 48, 48 ] });
+                test.done();
+            });
+        });
+        job.submit();
     }
 });
+
+job.submit();
