@@ -14,7 +14,7 @@ w.add_ability('test') do |data, job|
 #  sleep 0.25
   job.report_warning 'test'
   puts "sent warning"
-#  sleep 0.25
+  sleep 1
   puts "returning reverse now"
   data.reverse
   

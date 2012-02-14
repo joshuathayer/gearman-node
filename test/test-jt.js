@@ -5,13 +5,18 @@ var gearman = require("gearman"),
     util = require("util"),
     client, job;
 
-// XXX: These need a real gearman server running on localhost:4730 and
-// test/fixtures/worker.rb running. Need to make a mock server or something.
-
 // gearman.debug = true;
 
-client = gearman.createClient();
+client = gearman.createClient(['localhost:4731', 'localhost:4732','localhost:4733']);
+
+client.on("error", function(data) {
+    console.log("client reports error: " + data)
+});
+
 job = client.createJob("test", "test", { encoding: "utf8" });
+job.on("error", function(data) {
+  console.log("job reported error: " + data);
+});
 
 job.on("data", function (result) {
   console.log("got data");
@@ -27,3 +32,32 @@ job.on("complete", function (result) {
 });
 
 job.submit();
+
+setInterval(function() {
+
+client = gearman.createClient();
+client.on("error", function(data) {
+    console.log("client reports error: " + data)
+});
+job = client.createJob("test", "test", { encoding: "utf8" });
+
+job.on("error", function(data) {
+  console.log("job reported error: " + data);
+});
+
+
+job.on("data", function (result) {
+  console.log("got data");
+});
+
+job.on("warning", function (warning) {
+  console.log("got warning");
+});
+
+job.on("complete", function (result) {
+  console.log("got complete");
+});
+
+job.submit();
+
+}, 1000);
